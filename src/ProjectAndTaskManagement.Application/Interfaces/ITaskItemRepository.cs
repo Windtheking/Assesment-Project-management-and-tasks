@@ -4,6 +4,10 @@ namespace ProjectAndTaskManagement.Application.Interfaces;
 
 public interface ITaskItemRepository
 {
-    Task AddAsync(TaskItem taskItem);
-    Task<IEnumerable<TaskItem>> GetByProjectIdAsync(Guid projectId);    
+    Task<IEnumerable<TaskItem>> GetAllByProjectAsync(Guid projectId);
+    Task<TaskItem?> GetByIdAsync(Guid id);
+    Task AddAsync(TaskItem task);
+    Task UpdateAsync(TaskItem task);
+    Task DeleteAsync(Guid id);
+    Task<int> GetMaxOrderForProjectAsync(Guid projectId);
 }

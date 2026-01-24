@@ -8,5 +8,5 @@ public class TaskItem
     public int Order { get; set; } = 0;
     public bool IsCompleted { get; set; } = false;
     public Guid ProjectId { get; set; }
-    public Project Project { get; set; } = null!;
+    public Project Project { get; set; }
 }
