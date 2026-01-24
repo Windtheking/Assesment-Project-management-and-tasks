@@ -1,0 +1,129 @@
+@{
+    ViewData["Title"] = "Dashboard Usuario";
+    Layout = "_UserLayout";
+}
+
+<h1>Dashboard de Usuario</h1>
+<p>Bienvenido, @User.Identity?.Name</p>
+<div class="modal fade" id="deleteAccountModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">
+                    Eliminar cuenta
+                </h5>
+                <button type="button" class="btn-close"
+                        data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body" id="deleteAccountBody">
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const deleteModal = document.getElementById("deleteAccountModal");
+
+    deleteModal.addEventListener("shown.bs.modal", function () {
+        loadDeleteStepEmail();
+    });
+
+});
+
+function loadDeleteStepEmail() {
+    document.getElementById("deleteAccountBody").innerHTML = `
+        <p class="text-danger fw-bold">
+            This acction cannot be undone
+        </p>
+
+        <p>
+            For account deletion please confirm your account email.
+        </p>
+
+        <input type="email"
+               id="deleteEmail"
+               class="form-control mb-3"
+               placeholder="Correo electrónico"
+               required />
+
+        <button class="btn btn-danger w-100"
+                onclick="sendDeleteCode()">
+            Enviar código
+        </button>
+    `;
+}
+
+async function sendDeleteCode() {
+    const email = document.getElementById("deleteEmail").value;
+
+    if (!email) {
+        alert("Debes ingresar un correo");
+        return;
+    }
+
+    await fetch('/auth/send-delete-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+    });
+
+    loadDeleteStepConfirm(email);
+}
+
+function loadDeleteStepConfirm(email) {
+    document.getElementById("deleteAccountBody").innerHTML = `
+        <p>
+            Verification code sent to:
+            <strong>${email}</strong>.
+            You have 2 minutos before the code expires
+        </p>
+
+        <input type="text"
+               id="deleteCode"
+               class="form-control mb-2"
+               placeholder="Código de 4 dígitos" />
+
+        <input type="password"
+               id="deletePassword"
+               class="form-control mb-3"
+               placeholder="Contraseña" />
+
+        <button class="btn btn-danger w-100"
+                onclick="confirmDeleteAccount('${email}')">
+            Permanentely delete account
+        </button>
+    `;
+}
+
+async function confirmDeleteAccount(email) {
+    const code = document.getElementById("deleteCode").value;
+    const password = document.getElementById("deletePassword").value;
+
+    if (!code || !password) {
+        alert("Debes completar todos los campos");
+        return;
+    }
+
+    await fetch('/auth/delete-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            email: email,
+            code: code,
+            password: password
+        })
+    });
+
+    alert("Cuenta eliminada correctamente");
+    window.location.href = "/Auth/Login";
+}
+</script>
+
+
+
